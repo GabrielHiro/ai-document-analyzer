@@ -1,8 +1,9 @@
+import config from '../../../config/config.js';
+const API_KEY = config.api.key;
+const API_URL = config.api.url;
+
 // This file handles API interactions with the Gemini service. 
 // It exports functions for making requests to the API and processing responses.
-
-const API_KEY = ''; // Replace with your actual API key
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 /**
  * Makes a request to the Gemini API.
@@ -17,22 +18,30 @@ export async function requestGemini(action, text) {
     };
 
     try {
+        console.debug("[Gemini] Payload:", payload);
+
         const response = await fetch(`${API_URL}?key=${API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
+        console.debug("[Gemini] Response status:", response.status, response.statusText);
+
         if (!response.ok) {
-            throw new Error(`API Error: ${response.statusText}`);
+            const errorText = await response.text();
+            console.error(`[Gemini] API Error: ${response.statusText}`, errorText);
+            throw new Error(`API Error: ${response.statusText} - ${errorText}`);
         }
 
         const result = await response.json();
+        console.debug("[Gemini] API Result:", result);
+
         return result.candidates && result.candidates.length > 0 
             ? result.candidates[0].content.parts[0].text 
             : 'No valid response from the AI.';
     } catch (error) {
-        console.error("Error in API request:", error);
+        console.error("[Gemini] Error in API request:", error);
         throw error;
     }
 }
@@ -79,12 +88,13 @@ export async function processRequest(action, text, displayResult, showToast) {
         showToast('Análise concluída com sucesso!', false);
         
     } catch (error) {
-        console.error('Error processing request:', error);
+        console.error('[Gemini] Error processing request:', error);
         loadingSpinner.classList.add('hidden');
         resultContent.innerHTML = `
             <div class="error-message">
                 <p><strong>Erro ao processar o documento:</strong></p>
                 <p>${error.message}</p>
+                <pre>${error.stack}</pre>
                 <p>Por favor, tente novamente.</p>
             </div>
         `;
