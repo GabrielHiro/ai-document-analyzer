@@ -1,10 +1,5 @@
 // src/js/components/actionButtons.js
 
-import { processRequest } from '../api/gemini.js';
-import { showToast } from './toast.js';
-import { validateInput } from '../utils/validation.js';
-import { displayResult } from './resultDisplay.js';
-
 /**
  * Sets up event listeners for action buttons
  * @param {Function} processRequestFn - Function to process API requests
@@ -13,103 +8,132 @@ import { displayResult } from './resultDisplay.js';
  * @param {Function} showToastFn - Function to show toast notifications
  */
 export function setupActionButtons(processRequestFn, validateInputFn, displayResultFn, showToastFn) {
-    const actionButtons = document.querySelectorAll('.action-card');
-    const documentInput = document.getElementById('document-input');
+    const elements = {
+        actionButtons: document.querySelectorAll('.action-card'),
+        documentInput: document.getElementById('document-input'),
+        resultContent: document.getElementById('result-content'),
+        resultTitle: document.getElementById('result-title'),
+        copyBtn: document.getElementById('copy-btn'),
+        downloadBtn: document.getElementById('download-btn'),
+        clearBtn: document.getElementById('clear-btn'),
+        pasteBtn: document.getElementById('paste-btn')
+    };
 
-    actionButtons.forEach(button => {
+    // Set up main action buttons
+    elements.actionButtons.forEach(button => {
         button.addEventListener('click', async () => {
             const action = button.dataset.action;
-            const text = documentInput.value;
+            const text = elements.documentInput.value;
 
-            // Validate input
-            const validation = validateInputFn(text);
-            if (!validation.isValid) {
-                showToastFn(validation.message, true);
+            if (!validateAndProcessInput(text, action, validateInputFn, processRequestFn, displayResultFn, showToastFn)) {
                 return;
             }
-
-            // Process the request
-            await processRequestFn(action, text, displayResultFn, showToastFn);
         });
     });
 
-    // Setup copy and download buttons
-    setupResultActions();
+    // Set up utility buttons
+    setupCopyButton(elements, showToastFn);
+    setupDownloadButton(elements, showToastFn);
+    setupClearButton(elements, showToastFn);
+    setupPasteButton(elements, showToastFn);
 }
 
 /**
- * Sets up copy and download functionality for results
+ * Validates input and processes the request if valid
  */
-function setupResultActions() {
-    const copyBtn = document.getElementById('copy-btn');
-    const downloadBtn = document.getElementById('download-btn');
-    const clearBtn = document.getElementById('clear-btn');
-    const pasteBtn = document.getElementById('paste-btn');
-
-    if (copyBtn) {
-        copyBtn.addEventListener('click', () => {
-            const resultContent = document.getElementById('result-content');
-            if (resultContent && resultContent.textContent.trim()) {
-                navigator.clipboard.writeText(resultContent.textContent)
-                    .then(() => {
-                        showToast('Resultado copiado para a área de transferência!');
-                    })
-                    .catch(() => {
-                        showToast('Erro ao copiar o resultado.', true);
-                    });
-            }
-        });
+function validateAndProcessInput(text, action, validateFn, processFn, displayFn, toastFn) {
+    const validation = validateFn(text);
+    if (!validation.isValid) {
+        toastFn(validation.message, true);
+        return false;
     }
 
-    if (downloadBtn) {
-        downloadBtn.addEventListener('click', () => {
-            const resultContent = document.getElementById('result-content');
-            const resultTitle = document.getElementById('result-title');
-            
-            if (resultContent && resultContent.textContent.trim()) {
-                const content = `${resultTitle.textContent}\n\n${resultContent.textContent}`;
-                const blob = new Blob([content], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                
-                a.href = url;
-                a.download = `${resultTitle.textContent.toLowerCase().replace(/\s+/g, '-')}.txt`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-                
-                showToast('Arquivo baixado com sucesso!');
-            }
-        });
-    }
+    processFn(action, text, displayFn, toastFn).catch(err => {
+        toastFn(`Error processing request: ${err.message}`, true);
+    });
+    
+    return true;
+}
 
-    if (clearBtn) {
-        clearBtn.addEventListener('click', () => {
-            const documentInput = document.getElementById('document-input');
-            documentInput.value = '';
-            
-            // Trigger input event to update character counter
-            documentInput.dispatchEvent(new Event('input'));
-            
-            showToast('Texto limpo!');
-        });
-    }
+/**
+ * Sets up the copy button functionality
+ */
+function setupCopyButton(elements, showToastFn) {
+    if (!elements.copyBtn) return;
+    
+    elements.copyBtn.addEventListener('click', () => {
+        const content = elements.resultContent?.textContent?.trim();
+        if (!content) return;
+        
+        navigator.clipboard.writeText(content)
+            .then(() => showToastFn('Resultado copiado para a área de transferência!'))
+            .catch(err => showToastFn('Erro ao copiar o resultado.', true));
+    });
+}
 
-    if (pasteBtn) {
-        pasteBtn.addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                const documentInput = document.getElementById('document-input');
-                documentInput.value = text;
-                
-                // Trigger input event to update character counter
-                documentInput.dispatchEvent(new Event('input'));
-                
-                showToast('Texto colado com sucesso!');
-            } catch (error) {
-                showToast('Erro ao colar o texto. Verifique as permissões.', true);
-            }
-        });
-    }
+/**
+ * Sets up the download button functionality
+ */
+function setupDownloadButton(elements, showToastFn) {
+    if (!elements.downloadBtn) return;
+    
+    elements.downloadBtn.addEventListener('click', () => {
+        const content = elements.resultContent?.textContent?.trim();
+        const title = elements.resultTitle?.textContent || 'resultado';
+        
+        if (!content) return;
+        
+        const fullContent = `${elements.resultTitle.textContent}\n\n${content}`;
+        const fileName = `${title.toLowerCase().replace(/\s+/g, '-')}.txt`;
+        
+        downloadTextAsFile(fullContent, fileName);
+        showToastFn('Arquivo baixado com sucesso!');
+    });
+}
+
+/**
+ * Downloads text content as a file
+ */
+function downloadTextAsFile(content, fileName) {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Sets up the clear button functionality
+ */
+function setupClearButton(elements, showToastFn) {
+    if (!elements.clearBtn) return;
+    
+    elements.clearBtn.addEventListener('click', () => {
+        elements.documentInput.value = '';
+        elements.documentInput.dispatchEvent(new Event('input'));
+        showToastFn('Texto limpo!');
+    });
+}
+
+/**
+ * Sets up the paste button functionality
+ */
+function setupPasteButton(elements, showToastFn) {
+    if (!elements.pasteBtn) return;
+    
+    elements.pasteBtn.addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            elements.documentInput.value = text;
+            elements.documentInput.dispatchEvent(new Event('input'));
+            showToastFn('Texto colado com sucesso!');
+        } catch (error) {
+            showToastFn('Erro ao colar o texto. Verifique as permissões.', true);
+        }
+    });
 }
