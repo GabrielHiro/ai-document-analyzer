@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analisador de Documentos com IA</title>
+    
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components/buttons.css">
+    <link rel="stylesheet" href="css/components/forms.css">
+    <link rel="stylesheet" href="css/components/toast.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Background Pattern -->
+    <div class="background-pattern"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-brain"></i>
+                <span>AI Analyzer</span>
+            </div>
+            <div class="nav-links">
+                <a href="#" class="nav-link">Início</a>
+                <a href="#" class="nav-link">Sobre</a>
+                <a href="#" class="nav-link">Contato</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <header class="hero-section">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-sparkles"></i>
+                    <span>Powered by Hiro Furukawa</span>
+                </div>
+                <h1 class="hero-title">
+                    Analisador de Documentos
+                    <span class="gradient-text">com IA</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Transforme seus textos com inteligência artificial avançada. 
+                    Resumo, análise, melhoria e verificação de plágio em segundos.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">10k+</span>
+                        <span class="stat-label">Documentos analisados</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">99%</span>
+                        <span class="stat-label">Precisão</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">< 5s</span>
+                        <span class="stat-label">Tempo de resposta</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <div class="input-card">
+                <div class="input-header">
+                    <h2>
+                        <i class="fas fa-file-text"></i>
+                        Seu Documento
+                    </h2>
+                    <div class="input-actions">
+                        <button class="btn-icon" id="clear-btn" title="Limpar texto">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                        <button class="btn-icon" id="paste-btn" title="Colar texto">
+                            <i class="fas fa-paste"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="textarea-wrapper">
+                    <textarea 
+                        id="document-input" 
+                        rows="12" 
+                        placeholder="Cole aqui o texto que você deseja analisar... 
+                        
+Exemplo: artigos, ensaios, relatórios, e-mails, posts de blog, ou qualquer outro tipo de documento."
+                    ></textarea>
+                    <div class="textarea-overlay">
+                        <div class="char-info">
+                            <span id="char-counter">0 caracteres</span>
+                            <span class="separator">•</span>
+                            <span id="word-counter">0 palavras</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="actions-section">
+            <h3 class="section-title">Escolha uma ação</h3>
+            <div class="action-grid">
+                <button data-action="summarize" class="action-card summarize">
+                    <div class="action-icon">
+                        <i class="fas fa-compress-alt"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Resumir</h4>
+                        <p>Gere um resumo conciso dos pontos principais</p>
+                    </div>
+                    <div class="action-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </button>
+
+                <button data-action="analyze" class="action-card analyze">
+                    <div class="action-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Analisar</h4>
+                        <p>Análise crítica e detalhada do conteúdo</p>
+                    </div>
+                    <div class="action-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </button>
+
+                <button data-action="improve" class="action-card improve">
+                    <div class="action-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Melhorar</h4>
+                        <p>Reescrita para maior clareza e profissionalismo</p>
+                    </div>
+                    <div class="action-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </button>
+
+                <button data-action="plagiarism" class="action-card plagiarism">
+                    <div class="action-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="action-content">
+                        <h4>Verificar Plágio</h4>
+                        <p>Análise de originalidade do texto</p>
+                    </div>
+                    <div class="action-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="result-container" class="result-section hidden">
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="result-title-section">
+                        <div class="result-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h2 id="result-title">Resultado da Análise</h2>
+                    </div>
+                    <div class="result-actions">
+                        <button id="copy-btn" class="btn-secondary">
+                            <i class="fas fa-copy"></i>
+                            Copiar
+                        </button>
+                        <button id="download-btn" class="btn-secondary">
+                            <i class="fas fa-download"></i>
+                            Download
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="loading-spinner" class="loading-container hidden">
+                    <div class="loading-animation">
+                        <div class="loading-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                        <p class="loading-text">Processando seu documento...</p>
+                    </div>
+                </div>
+                
+                <div id="result-content" class="result-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>AI Document Analyzer</h4>
+                    <p>Potencializando sua produtividade com inteligência artificial.</p>
+                </div>
+                <div class="footer-section">
+                    <h5>Recursos</h5>
+                    <ul>
+                        <li><a href="#">Resumir textos</a></li>
+                        <li><a href="#">Análise crítica</a></li>
+                        <li><a href="#">Melhoria de escrita</a></li>
+                        <li><a href="#">Detecção de plágio</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h5>Suporte</h5>
+                    <ul>
+                        <li><a href="#">Documentação</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Contato</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 AI Document Analyzer. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
