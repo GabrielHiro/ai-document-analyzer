@@ -1,0 +1,44 @@
+/* Styles for form elements in the AI Document Analyzer application */
+
+textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #d1d5db; /* Gray-300 */
+    border-radius: 0.5rem;
+    transition: border-color 0.2s ease-in-out;
+}
+
+textarea:focus {
+    border-color: #3b82f6; /* Blue-500 */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* Blue-500 with transparency */
+}
+
+label {
+    font-weight: 600;
+    color: #374151; /* Gray-800 */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db; /* Gray-300 */
+    border-radius: 0.5rem;
+    transition: border-color 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus {
+    border-color: #3b82f6; /* Blue-500 */
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); /* Blue-500 with transparency */
+}
+
+.error {
+    color: #dc2626; /* Red-600 */
+    font-size: 0.875rem; /* Text-sm */
+    margin-top: 0.25rem;
+}
